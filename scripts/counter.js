@@ -2,7 +2,10 @@
 
 // Base-60 Counting Script - Right Hand (Base 12) × Left Hand (Base 5)
 // Ancient Babylonian/Sumerian counting system
+// Integrated with Declaration of Independence word sequence
 // Usage: node scripts/counter.js [max_number] [interval_ms]
+
+const declaration = require('./declaration-of-independence.js')
 
 const maxCount = parseInt(process.argv[2]) || 59
 const intervalMs = parseInt(process.argv[3]) || 500
@@ -11,20 +14,36 @@ let currentCount = 0
 let rightHand = 0  // Base 12 (0-11) - counts phalanges
 let leftHand = 0   // Base 5 (0-4) - counts fingers
 
-console.log('🤚 Base-60 Synchronized Hand Counting System')
+console.log('═══════════════════════════════════════════════════════════════')
+console.log('🤚 BASE-60 SYNCHRONIZED HAND COUNTING SYSTEM')
+console.log('   WITH DECLARATION OF INDEPENDENCE')
+console.log('═══════════════════════════════════════════════════════════════')
 console.log('Right Hand: Base 12 (phalanges) × Left Hand: Base 5 (fingers)')
-console.log(`Counting to ${maxCount} with ${intervalMs}ms interval\n`)
+console.log(`ROOT SEAL: ${declaration.rootSeal} | Total Words: ${declaration.totalWords}`)
+console.log(`Counting to ${maxCount} with ${intervalMs}ms interval`)
+console.log('Chronologically sequentially ordered - No alteration - No transformation')
+console.log('═══════════════════════════════════════════════════════════════\n')
 
 const counter = setInterval(() => {
   // Display current state
   const rightDisplay = '█'.repeat(rightHand) + '░'.repeat(11 - rightHand)
   const leftDisplay = '█'.repeat(leftHand) + '░'.repeat(4 - leftHand)
 
-  console.log(`L:[${leftDisplay}] R:[${rightDisplay}] | L:${leftHand} R:${rightHand.toString().padStart(2)} = ${currentCount}`)
+  // Get corresponding word from Declaration (1-indexed)
+  const wordNumber = currentCount + 1
+  const word = declaration.words[currentCount] || '[END]'
+  const wordDisplay = word.padEnd(20)
+
+  console.log(`L:[${leftDisplay}] R:[${rightDisplay}] | L:${leftHand} R:${rightHand.toString().padStart(2)} = ${currentCount.toString().padStart(4)} | #${wordNumber.toString().padStart(4)}: ${wordDisplay}`)
 
   if (currentCount >= maxCount) {
     clearInterval(counter)
-    console.log('\n✓ Counting complete!')
+    console.log('\n═══════════════════════════════════════════════════════════════')
+    console.log('✓ COUNTING COMPLETE')
+    if (currentCount >= declaration.rootSeal - 1) {
+      console.log(`🔒 ROOT SEAL REACHED: ${declaration.rootSeal} words of the Declaration`)
+    }
+    console.log('═══════════════════════════════════════════════════════════════')
     return
   }
 
