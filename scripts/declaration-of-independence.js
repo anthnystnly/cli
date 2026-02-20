@@ -1377,4 +1377,75 @@ module.exports = {
     attestedBy: 'Anthony Marc Stanley',
     description: 'Complete word correspondence with no omissions, chronologically sequentially ordered with no alteration and no transformation',
   },
+
+  // ROOT LAW - Causal Structure Analysis
+  // Strictly using only word-numbered clauses that appear earlier in the same document
+  // Every Cause precedes every paired Grievance. No Cause is inferred; all are quoted ranges.
+  causes: {
+    C1:  { start: 100, end: 105, label: 'Equality',                                    text: 'all Men are created equal' },
+    C2:  { start: 114, end: 116, label: 'Unalienable Rights',                          text: 'unalienable Rights' },
+    C3:  { start: 120, end: 126, label: 'Life, Liberty, Pursuit of Happiness',         text: 'Life Liberty and the Pursuit of Happiness' },
+    C4:  { start: 128, end: 134, label: 'Governments instituted to secure Rights',     text: 'to secure these Rights Governments are instituted' },
+    C5:  { start: 138, end: 146, label: 'Just powers from Consent of the Governed',   text: 'just Powers from the Consent of the Governed' },
+    C6:  { start: 148, end: 170, label: 'Right to alter or abolish destructive Govt', text: 'whenever any Form of Government becomes destructive...to abolish it' },
+    C7:  { start: 176, end: 201, label: 'New Govt must secure Safety and Happiness',  text: 'laying its Foundation...to effect their Safety and Happiness' },
+    C8:  { start: 251, end: 258, label: 'Long Train of Abuses & Usurpations',          text: 'a long Train of Abuses and Usurpations' },
+    C9:  { start: 265, end: 272, label: 'Design toward absolute Despotism',            text: 'a Design to reduce them under absolute Despotism' },
+    C10: { start: 274, end: 283, label: 'Right and Duty to throw off such Govt',      text: 'their Right it is their Duty to throw off such Government' },
+  },
+
+  // Grievance → Prior Cause pairings (G# → C#)
+  grievances: {
+    G1:  { start: 361,  end: 376,  cause: 'C4', label: 'Refused Assent to wholesome Laws' },
+    G2:  { start: 377,  end: 412,  cause: 'C4', label: 'Forbidden Governors to pass Laws' },
+    G3:  { start: 413,  end: 449,  cause: 'C5', label: 'Refused Laws for large Districts' },
+    G4:  { start: 450,  end: 480,  cause: 'C5', label: 'Called legislative Bodies to unusual Places' },
+    G5:  { start: 481,  end: 499,  cause: 'C5', label: 'Dissolved Representative Houses' },
+    G6:  { start: 500,  end: 551,  cause: 'C5', label: 'Refused to cause others to be elected' },
+    G7:  { start: 552,  end: 589,  cause: 'C4', label: 'Endeavoured to prevent Population' },
+    G8:  { start: 590,  end: 606,  cause: 'C4', label: 'Obstructed Administration of Justice' },
+    G9:  { start: 607,  end: 629,  cause: 'C4', label: 'Made Judges dependent on his Will' },
+    G10: { start: 630,  end: 652,  cause: 'C7', label: 'Erected Multitude of new Offices' },
+    G11: { start: 653,  end: 669,  cause: 'C7', label: 'Kept Standing Armies without consent' },
+    G12: { start: 670,  end: 684,  cause: 'C4', label: 'Military independent of Civil Power' },
+    G13: { start: 685,  end: 713,  cause: 'C6', label: 'Combined with others for foreign Jurisdiction' },
+    G14: { start: 714,  end: 722,  cause: 'C7', label: 'Quartering large Bodies of Troops' },
+    G15: { start: 723,  end: 744,  cause: 'C4', label: 'Protecting them by mock Trial' },
+    G16: { start: 745,  end: 755,  cause: 'C7', label: 'Cutting off our Trade' },
+    G17: { start: 756,  end: 763,  cause: 'C5', label: 'Imposing Taxes without Consent' },
+    G18: { start: 764,  end: 776,  cause: 'C4', label: 'Depriving us of Trial by Jury' },
+    G19: { start: 777,  end: 787,  cause: 'C4', label: 'Transporting us beyond Seas' },
+    G20: { start: 788,  end: 829,  cause: 'C6', label: 'Abolishing free System of English Laws' },
+    G21: { start: 830,  end: 847,  cause: 'C6', label: 'Taking away our Charters' },
+    G22: { start: 848,  end: 866,  cause: 'C5', label: 'Suspending our Legislatures' },
+    G23: { start: 867,  end: 883,  cause: 'C9', label: 'Abdicated Government, waging War' },
+    G24: { start: 884,  end: 901,  cause: 'C3', label: 'Plundered Seas, ravaged Coasts, destroyed Lives' },
+    G25: { start: 902,  end: 945,  cause: 'C9', label: 'Transporting foreign Mercenaries' },
+    G26: { start: 946,  end: 979,  cause: 'C3', label: 'Constrained Citizens to bear Arms against Country' },
+    G27: { start: 980,  end: 1016, cause: 'C9', label: 'Excited domestic Insurrections' },
+  },
+
+  // Returns Root Law structural info for a given word number (1-indexed)
+  getStructure(wordNum) {
+    for (const [id, cause] of Object.entries(this.causes)) {
+      if (wordNum >= cause.start && wordNum <= cause.end) {
+        return { type: 'CAUSE', id, ...cause }
+      }
+    }
+    for (const [id, griev] of Object.entries(this.grievances)) {
+      if (wordNum >= griev.start && wordNum <= griev.end) {
+        return { type: 'GRIEVANCE', id, causeLabel: this.causes[griev.cause].label, ...griev }
+      }
+    }
+    if (wordNum <= 20)   return { type: 'HEADER',          id: null, label: 'Header' }
+    if (wordNum <= 91)   return { type: 'PREAMBLE',        id: null, label: 'Preamble - Necessity of Separation' }
+    if (wordNum <= 283)  return { type: 'PRINCIPLES',      id: null, label: 'Self-Evident Truths & Principles' }
+    if (wordNum <= 359)  return { type: 'CONTEXT',         id: null, label: 'Colonial Context' }
+    if (wordNum <= 1016) return { type: 'FACTS',           id: null, label: 'Facts Submitted to a Candid World' }
+    if (wordNum <= 1183) return { type: 'ATTEMPTS',        id: null, label: 'Attempts at Redress' }
+    if (wordNum <= 1309) return { type: 'DECLARATION',     id: null, label: 'Formal Declaration of Independence' }
+    if (wordNum <= 1340) return { type: 'PLEDGE',          id: null, label: 'Sacred Pledge' }
+    if (wordNum <= 1353) return { type: 'SEAL',            id: null, label: 'Official Signatures - ROOT SEAL' }
+    return                      { type: 'CHAIN_OF_CUSTODY', id: null, label: 'Print Broadside Chain of Custody' }
+  },
 }
